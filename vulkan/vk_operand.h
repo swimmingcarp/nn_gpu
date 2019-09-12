@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_0_VK_OPERAND_H
-#define ANDROID_HARDWARE_NEURALNETWORKS_V1_0_VK_OPERAND_H
+#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_1_VK_OPERAND_H
+#define ANDROID_HARDWARE_NEURALNETWORKS_V1_1_VK_OPERAND_H
 
 #include "base_executor.h"
 #include "vk_common.h"
@@ -41,6 +41,8 @@ public:
     ~VkOperand() {}
 
     bool set(const Operand& from, uint8_t* vp, uint32_t index);
+    void reset(const int batch, const int width, const int height, const int channel);
+    void resetForTune();
     void restore(const Operand& from);
     bool setArg(const RequestArgument& from);
     void shareGpuStorage(VkOperand& shareFrom);
@@ -77,7 +79,10 @@ public:
     }
 
     VkBuffer getVkBuffer();
+
     void dump();
+    void dumpToFile(const char* file_name = "img_data", const int channels = 0);
+    void copyToBuffer(float* to_buf, const size_t buf_size);
 
     Shape getShape() const { return dimensions; }
 

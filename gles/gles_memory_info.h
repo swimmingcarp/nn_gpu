@@ -17,8 +17,8 @@
  * Author: Guo Yejun <yejun.guo@intel.com>
  */
 
-#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_0_GLES_MEMORY_INFO_H
-#define ANDROID_HARDWARE_NEURALNETWORKS_V1_0_GLES_MEMORY_INFO_H
+#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_1_GLES_MEMORY_INFO_H
+#define ANDROID_HARDWARE_NEURALNETWORKS_V1_1_GLES_MEMORY_INFO_H
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -41,6 +41,8 @@ public:
     void clean();
     void setNeedSync() { needSync = true; }
     void setNotInUsing();
+    void dump();
+    void dumpToFile(const char* fileName = "img_data", const int channels = 0);
     void incRef() { refCount++; }
     void resetRef() { refCount = 0;}
     void shareFrom(GlesMemoryInfo* from) { ssbo = from->ssbo; from->incRef();}

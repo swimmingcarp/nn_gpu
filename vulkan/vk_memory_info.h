@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_0_VK_MEMORY_INFO_H
-#define ANDROID_HARDWARE_NEURALNETWORKS_V1_0_VK_MEMORY_INFO_H
+#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_1_VK_MEMORY_INFO_H
+#define ANDROID_HARDWARE_NEURALNETWORKS_V1_1_VK_MEMORY_INFO_H
 
 #include "base_executor.h"
 #include "vk_common.h"
@@ -42,6 +42,9 @@ public:
     void shareFrom(VkMemoryInfo* from) { buffer = from->buffer; from->incRef();}
     VkBuffer getVkBuffer();
     void dump();
+    void dumpToFile(const char* file_name, const int channels = 0);
+    void resetForTune();
+    void copyToBuffer(float* to_buf, const size_t buf_size);
 private:
     uint8_t* userptr;
     size_t length;

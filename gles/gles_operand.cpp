@@ -38,6 +38,16 @@ bool GlesOperand::setArg(const RequestArgument& from)
     return true;
 }
 
+void GlesOperand::dump()
+{
+    memInfo->dump();
+}
+
+void GlesOperand::dumpToFile(const char* fileName, const int channels)
+{
+    memInfo->dumpToFile(fileName, channels);
+}
+
 void GlesOperand::restore(const Operand& from)
 {
     switch (from.lifetime)

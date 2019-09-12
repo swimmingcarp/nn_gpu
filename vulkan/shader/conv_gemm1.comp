@@ -19,6 +19,7 @@ layout (constant_id = 16) const int K = 0;
 layout (constant_id = 17) const int N = 0;
 layout (constant_id = 18) const int ACTIVATION = 0;
 layout (constant_id = 19) const int NUM_ITEMS = 0;
+layout (constant_id = 20) const int TAIL_M = 0;
 
 float activation(float x)
 {
@@ -36,60 +37,41 @@ float activation(float x)
   }
 }
 
-
 layout(binding = 0) readonly buffer Input0 {
-    float image_data[];
+    vec4 src0[];
 };
 layout(binding = 1) readonly buffer Input1 {
-    float weight_data[];
+    vec4 src1[];
 };
 layout(binding = 2) readonly buffer Input2 {
-    float bias_data[];
+    float bias[];
 };
 layout(binding = 3) writeonly buffer Output {
-    float convolved_image_data[];
+    float out0[];
 };
 
 layout(local_size_x_id = 0) in;
 layout(local_size_y_id = 1) in;
 layout(local_size_z_id = 2) in;
 
+#define VEC_SIZE 4
+
 void main()
 {
     int gx = int(gl_GlobalInvocationID.x);
     int gy = int(gl_GlobalInvocationID.y);
     int gz = int(gl_GlobalInvocationID.z);
-
-    if (gx < M)
+    float sum = 0.0f;
+    if (gx < N && gy < M && gz < BATCH)
     {
-        float sum = 0.0f;
-        int output_y = gy / OUT_W;
-        int output_x = gy % OUT_W;
-        int org_y = output_y * STRIDE_H - PAD_H;
-        int org_x = output_x * STRIDE_W - PAD_W;
-        int weight_off = gx * K;
-        int image_offset  = gz * IN_H * IN_W * CHANNELS;
+        int image_offset  = gz * IN_H * IN_W * CHANNELS / VEC_SIZE;
         int output_offset = gz * M * N;
-        int input_off = image_offset + (org_y * IN_W + org_x) * CHANNELS;
-
-        for (int y = 0; y < FILTER_H; y++)
+        for (int i = 0; i < K / VEC_SIZE; i++)
         {
-            for (int x = 0; x < FILTER_W; x++)
-            {
-                if (org_y + y >= 0 && org_y + y < IN_H && org_x + x >= 0 && org_x + x < IN_W)
-                {
-                    for (int c = 0; c < CHANNELS; c++)
-                    {
-                       sum += image_data[input_off + c] * weight_data[weight_off + c];
-                    }
-                }
-                input_off += CHANNELS;
-                weight_off += CHANNELS;
-            }
-            input_off += IN_W * CHANNELS - CHANNELS * FILTER_W;
+            sum += dot(src0[image_offset + gy * K / VEC_SIZE + i], src1[gx * K / VEC_SIZE + i]);
         }
-
-        int offset = output_offset + gy * N + gx;
-        convolved_image_data[offset] = activation(sum + bias_data[gx]);
+        sum += bias[gx];
+        out0[output_offset + gy * N + gx] = activation(sum);
     }
 }
+

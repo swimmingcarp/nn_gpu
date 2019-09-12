@@ -14,10 +14,10 @@
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := android.hardware.neuralnetworks@1.0-service-gpgpu
+LOCAL_MODULE := android.hardware.neuralnetworks@1.1-service-gpgpu
 LOCAL_MODULE_RELATIVE_PATH := hw
 LOCAL_PROPRIETARY_MODULE := true
-LOCAL_INIT_RC := android.hardware.neuralnetworks@1.0-service-gpgpu.rc
+LOCAL_INIT_RC := android.hardware.neuralnetworks@1.1-service-gpgpu.rc
 LOCAL_SRC_FILES := \
 service.cpp \
 device.cpp \
@@ -25,7 +25,6 @@ prepare_model.cpp \
 executor_manager.cpp \
 base_executor.cpp \
 gpu_executor.cpp \
-validate.cpp \
 vulkan/vk_cs_executor.cpp \
 vulkan/vk_memory_manager.cpp \
 vulkan/vk_pool_info.cpp \
@@ -34,17 +33,25 @@ vulkan/vk_operand.cpp \
 vulkan/vk_buffer.cpp \
 vulkan/vk_cs_executor_elewise.cpp \
 vulkan/vk_cs_executor_conv.cpp \
+vulkan/vk_cs_executor_depth_conv.cpp \
 vulkan/vk_cs_executor_concat.cpp \
+vulkan/vk_cs_executor_logistic.cpp \
 vulkan/vk_cs_executor_softmax.cpp \
 vulkan/vk_cs_executor_pool.cpp \
 vulkan/vk_cs_executor_lrn.cpp \
+vulkan/vk_cs_executor_reshape.cpp \
 vulkan/vk_op_base.cpp \
 vulkan/vk_wrapper.cpp \
 vulkan/shader/elewise_spv.cpp \
 vulkan/shader/conv_spv.cpp \
+vulkan/shader/dw_conv_spv.cpp \
 vulkan/shader/concat_spv.cpp \
+vulkan/shader/logistic_spv.cpp \
 vulkan/shader/softmax_spv.cpp \
 vulkan/shader/avg_pool_spv.cpp \
+vulkan/shader/conv_chn3to4_spv.cpp \
+vulkan/shader/conv_gemmShader4_8_spv.cpp \
+vulkan/shader/conv_gemm1_spv.cpp \
 vulkan/shader/max_pool_spv.cpp \
 vulkan/shader/lrn_spv.cpp \
 gles/gles_cs_executor.cpp \
@@ -88,7 +95,11 @@ ifeq ($(TARGET_PRODUCT), icl_presi_kbl)
 LOCAL_CFLAGS += -DTARGET_KBL
 endif
 
-LOCAL_C_INCLUDES := frameworks/native/vulkan/include
+LOCAL_C_INCLUDES := \
+frameworks/native/vulkan/include \
+frameworks/ml/nn/common/include
+
+LOCAL_STATIC_LIBRARIES := libneuralnetworks_common
 
 LOCAL_SHARED_LIBRARIES := \
 libbase \
@@ -103,6 +114,7 @@ liblog \
 libutils \
 libEGL \
 libGLESv3 \
+android.hardware.neuralnetworks@1.1 \
 android.hardware.neuralnetworks@1.0 \
 android.hidl.allocator@1.0 \
 android.hidl.memory@1.0

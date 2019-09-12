@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_0_VK_OP_BASE_H
-#define ANDROID_HARDWARE_NEURALNETWORKS_V1_0_VK_OP_BASE_H
+#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_1_VK_OP_BASE_H
+#define ANDROID_HARDWARE_NEURALNETWORKS_V1_1_VK_OP_BASE_H
 
 #include "vk_common.h"
 #include "vk_operand.h"
@@ -42,6 +42,8 @@ protected:
     void recordCommandBuffer(void* push_constants = NULL, size_t push_constants_size = 0);
     void runCommandBuffer();
     bool computeGroupCountX(uint32_t totalThreadX, int preferLocalSizeX, int& localSizeX);
+    void setGroupSize(const int gx, const int gy, const int gz);
+    void rebindVkBuffer(VkOperand& operand, const int b, const int w, const int h, const int c);
 
     VkPipeline pipeline;
     VkCommandBuffer cmd_buffer;

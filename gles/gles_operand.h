@@ -1,5 +1,5 @@
-#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_0_GLES_OPERAND_H
-#define ANDROID_HARDWARE_NEURALNETWORKS_V1_0_GLES_OPERAND_H
+#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_1_GLES_OPERAND_H
+#define ANDROID_HARDWARE_NEURALNETWORKS_V1_1_GLES_OPERAND_H
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -61,6 +61,9 @@ public:
     {
         return type;
     }
+
+    void dump();
+    void dumpToFile(const char* fileName = "img_data", const int channels = 0);
 
 private:
     size_t getBasicTypeSize();

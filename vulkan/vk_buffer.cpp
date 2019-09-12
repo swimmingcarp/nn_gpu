@@ -15,7 +15,6 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #include "vk_common.h"
 #include "vk_buffer.h"
 #include "vk_wrapper.h"
@@ -81,13 +80,64 @@ void Buffer::dump()
 {
     if (memory != VK_NULL_HANDLE) {
         uint8_t* data;
+
         VK_CHECK_RESULT(vkMapMemory(device, memory, 0, length, 0, (void **)&data));
         NN_GPU_DEBUG("call %s, userptr data is %f, size_in_bytes is %zu",
             __func__, 
             *(reinterpret_cast<const float *>(data)),
             length);
+        const float* fp = reinterpret_cast<const float *>(data);
+        // only dump the first 16 float numberbs
+        for (size_t i = 0; i < 15; ++i)
+        {
+            NN_GPU_DEBUG("dumpped out buffer content is: %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
+                fp[0], fp[1], fp[2], fp[3], fp[4], fp[5], fp[6], fp[7], fp[8], fp[9], fp[10], fp[11], fp[12],
+                fp[13], fp[14], fp[15]);
+        }
         vkUnmapMemory(device, memory);
     }
+}
+
+void Buffer::dumpToFile(const char* fileName, const int channels)
+{
+    static uint32_t file_no = 0;
+
+    std::string file = std::string("/data/") + std::string("vk_") + std::string(fileName)
+                    + std::to_string(file_no) + ".txt";
+    FILE* file_ptr = fopen(file.c_str(), "w+");
+
+    file_no++;
+
+    if (file_ptr == nullptr)
+    {
+        NN_GPU_DEBUG("call %s, create file %s failed", __func__, file.c_str());
+        return;
+    }
+
+    if (memory != VK_NULL_HANDLE)
+    {
+        uint8_t* data;
+
+        VK_CHECK_RESULT(vkMapMemory(device, memory, 0, length, 0, (void **)&data));
+
+        const float* fp = reinterpret_cast<const float *>(data);
+        int cur_c = 1;
+        const size_t f_len = length / 4;
+
+        NN_GPU_DEBUG("%s: dumpped file length is %zu", __func__, f_len);
+
+        for (size_t i = 0; i < f_len; i++)
+        {
+            fprintf(file_ptr, "%f,", fp[i]);
+            if (channels != 0 && cur_c % channels == 0) {
+                fprintf(file_ptr, "\n");
+            }
+            cur_c++;
+        }
+        vkUnmapMemory(device, memory);
+    }
+
+    fclose(file_ptr);
 }
 
 Buffer::Buffer(size_t size_in_bytes, const uint8_t* data)
@@ -119,6 +169,49 @@ uint8_t* Buffer::map()
 void Buffer::unMap()
 {
     vkUnmapMemory(device, memory);
+}
+
+void Buffer::resetForTune()
+{
+    if (memory != VK_NULL_HANDLE)
+    {
+        uint8_t* data;
+        VK_CHECK_RESULT(vkMapMemory(device, memory, 0, length, 0, (void **)&data));
+
+        const size_t buf_size = length / 4;
+        float* fp = reinterpret_cast<float *>(data);
+
+        // reset output
+        for (size_t i = 0; i < buf_size; ++i)
+        {
+            fp[i] = 7.28f;
+        }
+
+        vkUnmapMemory(device, memory);
+    }
+}
+
+void Buffer::copyToBuffer(float* to_buf, const size_t buf_size)
+{
+    ASSERT(to_buf != nullptr && buf_size > 0);
+
+    if (memory != VK_NULL_HANDLE)
+    {
+        uint8_t* data;
+        VK_CHECK_RESULT(vkMapMemory(device, memory, 0, length, 0, (void **)&data));
+
+        float* fp = reinterpret_cast<float*>(data);
+        if (buf_size <= length)
+        {
+            memcpy(to_buf, fp, buf_size);
+        }
+        else
+        {
+            LOG(ERROR) << "copyToBuffer: buf_size is greater than vk buffer size";
+        }
+
+        vkUnmapMemory(device, memory);
+    }
 }
 
 NAME_SPACE_STOP

@@ -1,5 +1,5 @@
-#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_0_GLES_CS_PROGRAM_KEY_H
-#define ANDROID_HARDWARE_NEURALNETWORKS_V1_0_GLES_CS_PROGRAM_KEY_H
+#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_1_GLES_CS_PROGRAM_KEY_H
+#define ANDROID_HARDWARE_NEURALNETWORKS_V1_1_GLES_CS_PROGRAM_KEY_H
 
 #include "base_executor.h"
 
@@ -23,12 +23,12 @@ struct GlesCsProgramKeyBasic
 {
     GlesCsProgramKeyBasic(OperationType type)
     {
-        size_t size = sizeof(*this);
+        size_t size = sizeof(struct GlesCsProgramKeyBasic);
         memset(this, 0xBB, size);
         opType = type;
     }
     OperationType opType;
-    int32_t activation;
+    int32_t activation = {0};
     uint32_t localSizeX;
     uint32_t localSizeY;
     uint32_t localSizeZ;

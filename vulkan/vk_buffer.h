@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_0_VK_BUFFER_H
-#define ANDROID_HARDWARE_NEURALNETWORKS_V1_0_VK_BUFFER_H
+#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_1_VK_BUFFER_H
+#define ANDROID_HARDWARE_NEURALNETWORKS_V1_1_VK_BUFFER_H
 
 #include <vulkan/vulkan.h>
 
@@ -29,9 +29,12 @@ public:
     Buffer(size_t size_in_bytes, const uint8_t* data);
     ~Buffer();
     void dump();
+    void dumpToFile(const char* fileName = "img_data", const int channels = 0);
     VkBuffer getVkBuffer() { return buffer; }
     uint8_t* map();
     void unMap();
+    void resetForTune();
+    void copyToBuffer(float* to_buf, const size_t buf_size);
 
 private:
     Buffer();

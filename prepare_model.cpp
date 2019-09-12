@@ -7,9 +7,11 @@
 
 #include "prepare_model.h"
 #include "executor_manager.h"
-#include "validate.h"
+#include "ValidateHal.h"
 
 NAME_SPACE_BEGIN
+
+using namespace android::nn;
 
 PreparedModel::PreparedModel(const Model& model)
       : // Make a copy of the model, as we need to preserve it.
@@ -22,8 +24,7 @@ PreparedModel::PreparedModel(const Model& model)
 bool PreparedModel::initialize()
 {
     NN_GPU_CALL();
-    exec->initPerModel();
-    return true;
+    return exec->initPerModel();
 }
 
 void PreparedModel::asyncExecute(const Request& request,

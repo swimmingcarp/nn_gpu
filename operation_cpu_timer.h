@@ -1,5 +1,5 @@
-#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_0_OPERATION_CPU_TIMER_H
-#define ANDROID_HARDWARE_NEURALNETWORKS_V1_0_OPERATION_CPU_TIMER_H
+#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_1_OPERATION_CPU_TIMER_H
+#define ANDROID_HARDWARE_NEURALNETWORKS_V1_1_OPERATION_CPU_TIMER_H
 
 #include <vector>
 #include <string>
@@ -9,7 +9,7 @@ NAME_SPACE_BEGIN
 class OperationCpuTimer
 {
 public:
-    OperationCpuTimer() : avg(0) {}
+    OperationCpuTimer() : avg(0), opIndex(0) {}
     ~OperationCpuTimer() {}
     void add(long diff) { times.push_back(diff); }
     void set(uint32_t index, const std::string& name)

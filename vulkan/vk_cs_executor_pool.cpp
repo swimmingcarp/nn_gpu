@@ -78,26 +78,27 @@ bool VkCsExecutor::doPool(const Operation& operation, ShaderConfig& config, cons
 	if (opBase->pipeline == VK_NULL_HANDLE)
 	{
         if (type == kPoolTypeAvg)
+        {
 		    opBase->createShaderModule(avg_pool_spv, sizeof(avg_pool_spv));
+        }
         else if (type == kPoolTypeMax)
+        {
             opBase->createShaderModule(max_pool_spv, sizeof(max_pool_spv));
+        }
+
 		opBase->createPipeline(sizeof(PoolParam));
-#define GLOBAL_SIZE (128 * 128)
-        opBase->group_x = alignSize(GLOBAL_SIZE, config.local_size_x) / config.local_size_x;
-        opBase->group_y = 1;
-        opBase->group_z = 1;
 	}
 
 	opBase->bindOperand(in, 0, opBase->descriptor_set);
 	opBase->bindOperand(out, 1, opBase->descriptor_set);
 
     PoolParam param;
-    param.channels = in_shape[kShapeIdxChannel];
-    param.in_height = in_shape[kShapeIdxHeight];
-    param.in_width = in_shape[kShapeIdxWidth];
+    param.channels   = in_shape[kShapeIdxChannel];
+    param.in_height  = in_shape[kShapeIdxHeight];
+    param.in_width   = in_shape[kShapeIdxWidth];
     param.out_height = out_shape[kShapeIdxHeight];
-    param.out_width = out_shape[kShapeIdxWidth];
-    param.total = out.getElementCount();
+    param.out_width  = out_shape[kShapeIdxWidth];
+    param.total      = out.getElementCount();
 
     if (inCount == 10) {
         param.padding_left   = operands[ins[1]].getScalarData<uint32_t>();
@@ -125,18 +126,32 @@ bool VkCsExecutor::doPool(const Operation& operation, ShaderConfig& config, cons
                                  &param.padding_top);
     }
 
+    int32_t lsz_x  = 8;
+    int32_t lsz_y  = 8;
+    int32_t lsz_z  = 1;
+    int32_t item_z = 1;
+
+    opBase->group_x = ceil(static_cast<float>(param.out_width) / lsz_x);
+    opBase->group_y = ceil(static_cast<float>(param.out_height) / lsz_y);
+    opBase->group_z = ceil(static_cast<float>((ceil(static_cast<float>(param.channels) / item_z))) / lsz_z);
+
     /* for average pool, following member is used for padded_area, hard coded as true in vkcom,
      * for max pool, it is used to indicate if mask tensor exist, we didn't support currently
      */
     if (type == kPoolTypeAvg)
+    {
         param.mask_or_padded_area = 1;
+    }
     else
+    {
         param.mask_or_padded_area = 0;
+    }
 
-    NN_GPU_DEBUG("param channels is %d, in height is %d, in width is %d, out height is %d, out width is %d, total is %d,"
-          "stride w is %d, stride h is %d, filter w is %d, filter h is %d, padded area is %d",
-          param.channels, param.in_height, param.in_width, param.out_height, param.out_width, param.total, param.stride_w,
-          param.stride_h, param.filter_w, param.filter_h, param.mask_or_padded_area);
+    NN_GPU_DEBUG("VkCsExecutor::doPool: param channels is %d, in height is %d, in width is %d, out height is %d, "
+        "out width is %d, total is %d, stride w is %d, stride h is %d, filter w is %d, filter h is %d, padded area is %d",
+        param.channels, param.in_height, param.in_width, param.out_height, param.out_width, param.total, param.stride_w,
+        param.stride_h, param.filter_w, param.filter_h, param.mask_or_padded_area);
+
     opBase->recordCommandBuffer((void *)&param, sizeof(PoolParam));
     opBase->runCommandBuffer();
 
@@ -146,20 +161,32 @@ bool VkCsExecutor::doPool(const Operation& operation, ShaderConfig& config, cons
 
 bool VkCsExecutor::doAVERAGE_POOL_2D(const Operation& operation)
 {
+    NN_GPU_ENTRY();
+
     ASSERT(operation.type == OperationType::AVERAGE_POOL_2D);
+    bool ret = false;
 
     ShaderConfig config = {DEFAULT_LOCAL_SZ, 1, 1, 1, 1, 1};
     prepareConfig(operation, config);
-    return doPool(operation, config, kPoolTypeAvg);
+    ret = doPool(operation, config, kPoolTypeAvg);
+
+    NN_GPU_EXIT();
+    return ret;
 }
 
 bool VkCsExecutor::doMAX_POOL_2D(const Operation& operation)
 {
+    NN_GPU_ENTRY();
+
     ASSERT(operation.type == OperationType::MAX_POOL_2D);
+    bool ret = false;
 
     ShaderConfig config = {DEFAULT_LOCAL_SZ, 1, 1, 1, 1, 1};
     prepareConfig(operation, config);
-    return doPool(operation, config, kPoolTypeMax);
+    ret = doPool(operation, config, kPoolTypeMax);
+
+    NN_GPU_EXIT();
+    return ret;
 }
 
 NAME_SPACE_STOP

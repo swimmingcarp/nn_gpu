@@ -74,7 +74,33 @@ VkBuffer VkMemoryInfo::getVkBuffer()
 void VkMemoryInfo::dump()
 {
     if (buffer)
+    {
         buffer->dump();
+    }
+}
+
+void VkMemoryInfo::dumpToFile(const char* file_name, const int channels)
+{
+    if (buffer)
+    {
+        buffer->dumpToFile(file_name, channels);
+    }
+}
+
+void VkMemoryInfo::resetForTune()
+{
+    if (buffer)
+    {
+        buffer->resetForTune();
+    }
+}
+
+void VkMemoryInfo::copyToBuffer(float* to_buf, const size_t buf_size)
+{
+    if (buffer)
+    {
+        buffer->copyToBuffer(to_buf, buf_size);
+    }
 }
 
 NAME_SPACE_STOP

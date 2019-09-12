@@ -23,6 +23,23 @@
 
 NAME_SPACE_BEGIN
 
+void VkOperand::reset(const int batch, const int width, const int height, const int channel)
+{
+    dimensions[kShapeIdxBatch]   = batch;
+    dimensions[kShapeIdxHeight]  = height;
+    dimensions[kShapeIdxWidth]   = width;
+    dimensions[kShapeIdxChannel] = channel;
+
+    length   = getElementCount() * getBasicTypeSize();
+    lifetime = OperandLifeTime::TEMPORARY_VARIABLE;
+    memInfo  = nullptr;
+    valPtr   = nullptr;
+
+    getVkBuffer();
+
+    return;
+}
+
 bool VkOperand::setArg(const RequestArgument& from)
 {
     NN_GPU_ENTRY();
@@ -223,6 +240,11 @@ void VkOperand::dump()
     memInfo->dump();
 }
 
+void VkOperand::dumpToFile(const char* file_name, const int channels)
+{
+    memInfo->dumpToFile(file_name, channels);
+}
+
 void VkOperand::shareGpuStorage(VkOperand& from)
 {
     // assure the storage allocation of from
@@ -303,6 +325,16 @@ void VkOperand::copyTo(VkOperand& dst)
 }
 
 #endif
+
+void VkOperand::resetForTune()
+{
+    memInfo->resetForTune();
+}
+
+void VkOperand::copyToBuffer(float* to_buf, const size_t buf_size)
+{
+    memInfo->copyToBuffer(to_buf, buf_size);
+}
 
 //added done
 

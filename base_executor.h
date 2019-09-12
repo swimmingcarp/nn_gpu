@@ -17,8 +17,8 @@
  * Author: Guo Yejun <yejun.guo@intel.com>
  */
 
-#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_0_BASE_EXECUTOR_H
-#define ANDROID_HARDWARE_NEURALNETWORKS_V1_0_BASE_EXECUTOR_H
+#ifndef ANDROID_HARDWARE_NEURALNETWORKS_V1_1_BASE_EXECUTOR_H
+#define ANDROID_HARDWARE_NEURALNETWORKS_V1_1_BASE_EXECUTOR_H
 
 #include <algorithm>
 #include <memory.h>
@@ -57,7 +57,7 @@ public:
     virtual bool initPerExecThread() { NOT_REACH_HERE; return true; }
     virtual void deinitPerExecThread() { NOT_REACH_HERE; }
 
-    virtual bool run(const Request& request) { NOT_REACH_HERE; UNUSED(request); return true;}
+    virtual bool run(const Request& request) { UNUSED(request); NOT_REACH_HERE; return true; }
     virtual std::string getOpName(const Operation& op);
 protected:
     const Model& model;
