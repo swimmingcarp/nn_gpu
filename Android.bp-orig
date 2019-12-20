@@ -1,4 +1,5 @@
 cc_binary {
+
     name: "android.hardware.neuralnetworks@1.1-service-gpgpu",
     defaults: ["hidl_defaults"],
     init_rc: ["android.hardware.neuralnetworks@1.1-service-gpgpu.rc"],
